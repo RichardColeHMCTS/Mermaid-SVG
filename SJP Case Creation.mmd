@@ -11,53 +11,57 @@ config:
   markdownAutoWrap: false
 ---
 flowchart LR
-  CCF-INI-0@{ label: "<b style=\"font-size: 14pt\">Previous<br>Flow<b>" }
+
+  classDef external fill:#BBDEFB
+  classDef internal fill:#C8E6C9
+  classDef email fill:#FEFFD6
+  classDef in-out fill:#EEE
+
+  INI-0@{ img: "https://raw.githubusercontent.com/RichardColeHMCTS/Mermaid-SVG/f9e54f57e215dffd8e8de842f6124855321a1210/Custom%20CVG/off-page-connector-left.svg", label: "Previous Flow", pos: "b", h: 60, constraint: "on" }
+
   subgraph CCF[" "]
  
     direction LR      
-        CCF-CID-1@{ label: "<b style=\"font-size: 14pt\">Command Issued</b><br>progression.command.create-prosecution-case" }
-        CCF-CID-2@{ label: "<b style=\"font-size: 14pt\">Command Issued</b><br>progression.command.process-matched-defendats" }
-        CCF-CID-3@{ label: "<b style=\"font-size: 14pt\">Command Issued</b><br>progression.command.update-matched-defendant" }
-        CCF-ERI-1@{ label: "<b style=\"font-size: 14pt\">Event Raised</b><br>progression.event.prosecution-case-created" }
-        CCF-ERP-1@{ label: "<b style=\"font-size: 14pt\">Event Raised</b><br>public.progression.prosecution-case-created" }
-        CCF-ERI-2@{ label: "<b style=\"font-size: 14pt\">Event Raised</b><br>progression.event.defendant-partial-match-created" }
-        CCF-ERI-3@{ label: "<b style=\"font-size: 14pt\">Event Raised</b><br>progression.event.master-defendant-id-update-v2" }
-        CCF-ERI-4@{ label: "<b style=\"font-size: 14pt\">Event Raised</b><br>progression.event.master-defendant-id-update" }
-        CCF-ERI-5@{ label: "<b style=\"font-size: 14pt\">Event Raised</b><br>progression.event.defendants-master-defendant-id-update" }
-        CCF-ERI-6@{ label: "<b style=\"font-size: 14pt\">Event Raised</b><br>public.progression.prosecution-case-created" }
-        CCF-QUS-1{"<b>Defendant<br>match<br>?</b>"}
+        CMD-1["`**Command Issued**
+              progression.command.create-prosecution-case`"]
+        CMD-2["`**Command Issued**
+              progression.command.process-matched-defendats`"]
+        CMD-3["`**Command Issued**
+              progression.command.update-matched-defendant`"]
+        EVT-1["`**Event Raised**
+              progression.event.prosecution-case-created`"]
+        P-EVT-1["`**Event Raised**
+              public.progression.prosecution-case-created`"]
+        EVT-2["`**Event Raised**
+              progression.event.defendant-partial-match-created`"]
+        EVT-3["`**Event Raised**
+              progression.event.master-defendant-id-update-v2`"]
+        EVT-4["`**Event Raised**
+              progression.event.master-defendant-id-update`"]
+        EVT-5["`**Event Raised**
+              progression.event.defendants-master-defendant-id-update`" ]
+        EVT-6["`**Event Raised**
+              public.progression.prosecution-case-created`"]
+        QUS-1{"`**Defendant
+              match
+              ?**`"}
   end
 
-    CCF-INI-0 --> CCF-CID-1
-    CCF-CID-1 --> CCF-ERI-1
-    CCF-ERI-1 --> CCF-CID-2 & CCF-ERP-1
-    CCF-CID-2 -- for each matched defendant --> CCF-QUS-1
-    CCF-QUS-1 -- partial match --> CCF-ERI-2
-    CCF-QUS-1 -- full match --> CCF-ERI-3 & CCF-ERI-4
-    CCF-ERI-3 -- for each matched defendant not matching master defendant ID --> CCF-CID-3
-    CCF-CID-3 --> CCF-ERI-5
-    CCF-ERI-3 --> CCF-ERI-6
-    CCF-ERI-5 --> CCF-ERI-6
-    CCF-ERI-4 -- for each matched defendant not matching master defendant ID --> CCF-ERI-6
+    INI-0 --> CMD-1
+    CMD-1 --> EVT-1
+    EVT-1 --> CMD-2 & P-EVT-1
+    CMD-2 -- for each matched defendant --> QUS-1
+    QUS-1 -- partial match --> EVT-2
+    QUS-1 -- full match --> EVT-3 & EVT-4
+    EVT-3 -- for each matched defendant not matching master defendant ID --> CMD-3
+    CMD-3 --> EVT-5
+    EVT-3 --> EVT-6
+    EVT-5 --> EVT-6
+    EVT-4 -- for each matched defendant not matching master defendant ID --> EVT-6
 
-    CCF-INI-0@{ shape: trap-t}
-    CCF-CID-1@{ shape: rounded}
-    CCF-CID-2@{ shape: rounded}
-    CCF-CID-3@{ shape: rounded}
-    CCF-ERI-1@{ shape: rounded}
-    CCF-ERP-1@{ shape: rounded}
-    CCF-ERI-2@{ shape: rounded}
-    CCF-ERI-3@{ shape: rounded}
-    CCF-ERI-4@{ shape: rounded}
-    CCF-ERI-5@{ shape: rounded}
-    CCF-ERI-6@{ shape: rounded}
+%% Assign Classes
+  class INI-0,INI-1,B-OUT-0,B-OUT-1,B-OUT-2,B-OUT-3 in-out
+  class P-EVT-0,P-EVT-1,P-EVT-2,P-EVT-3,P-EVT-4,CLD-0 external
+  class EVT-0,EVT-1,EVT-2,EVT-3,EVT-4,EVT-5,EVT-6,EVT-7 internal
 
-    style CCF-INI-0 fill:#EEE
-    style CCF-ERI-1 fill:#C8E6C9
-    style CCF-ERI-2 fill:#C8E6C9
-    style CCF-ERI-3 fill:#C8E6C9
-    style CCF-ERI-4 fill:#C8E6C9
-    style CCF-ERI-5 fill:#C8E6C9
-    style CCF-ERI-6 fill:#BBDEFB
-    style CCF-ERP-1 fill:#BBDEFB
-    style CCF-QUS-1 fill:#FFE0B2
+  click INI-0 href "history.back()" "This will return to previous page"
