@@ -1,0 +1,167 @@
+---
+title: Application Creation Flow
+config:
+  markdownAutoWrap: false
+  theme: 'base'
+  themeVariables:
+    fontFamily: Helvetica, Arial, Calibri
+    clusterBkg: '#FFFFF8'
+    primaryColor: '#FFF'
+    secondaryColor: '#FFFFF8'    
+  layB-OUT: dagre
+---
+
+flowchart LR
+  classDef external fill:#BBDEFB
+  classDef internal fill:#C8E6C9
+  classDef email fill:#FEFFD6
+  classDef in-out fill:#EEE
+
+  subgraph ACF[" "]
+    direction LR
+
+%% INI   - Initialise    
+        INI-0(["`**Application Creation
+                initiation flow**`"])
+        INI-1(["`**Application Creation
+                flow**`"])
+
+%% CMD   - Command Issued
+        CMD-0["`**Command Issued**
+                progression.initiate-court-proceedings-for-application`"]
+        CMD-1["`**Command Issued**
+                progression.command.initiate-court-proceedings-for-application`"]
+        CMD-2["`**Command Issued**
+                progression.command.create-court-application`"]
+        CMD-3["`**Command Issued**
+                progression.command.list-or-refer-court-application`"]
+        CMD-4["`**Command Issued**
+                progression.command.update-cps-defendant-id`"]
+        CMD-5["`**Command Issued**
+                listing.command.list-court-hearing`"]
+        CMD-6["`**Command Issued**
+                hearing.initiate`"]                
+
+%% EVT   - Event Raised
+        EVT-0["`**Event Raised**
+                progression.event.court-application-proceddings-initiated`"]
+        EVT-1["`**Event Raised**
+                progression.event.court-application-created`"]
+        EVT-2["`**Event Raised**
+                progression.event.send-statdec-appointment-letter`"]
+        EVT-3["`**Event Raised**
+                progression.events.cps-defendant-id-updated`"]
+        EVT-4["`**Event Raised**
+                progression.event.court-application-added-to-case`"]
+        EVT-5["`**Event Raised**
+                progression.event.application-referred-to-boxwork`"]
+        EVT-6["`**Event Raised**
+                progression.event.application-referred-to-court-hearing`"]
+        EVT-7["`**Event Raised**
+                progression.event.application-referral-to-existing-hearing`"]
+
+%% P-EVT - Public Event Raised
+        P-EVT-0["`**Event Raised**
+                public.progression.court-application-proceedings-initiated`"]
+        P-EVT-1["`**Event Raised**
+                public.progression.sjp-prosecution-case-created`"]
+        P-EVT-2["`**Event Raised**
+                public.progression.court-application-created`"]
+        P-EVT-3["`**Event Raised**
+                public.progression.events.hearing-extended`"]
+        P-EVT-4["`**Event Raised**
+                public.progression.boxwork-application-referred`"]                
+
+%% QUS - Query
+        QUS-0{"`Is this a SJP?`"}
+        QUS-1{"`For each case
+                present in SJP
+                and **NOT** present
+                in CC?`"}
+        QUS-2{"`Application code is
+              (MC80527 or MC80528) and
+              letter for appointment to be 
+              sent for boxwork?`"}
+        QUS-3{"`Is Application
+              linked to case?`"}
+        QUS-4{"`Decision?`"}
+        QUS-5{"`Application type ==
+              COMMISSION_OF
+              _NEW_OFFENCE
+              _BREACH`"}
+
+%% NDS - Junction Nodes
+        NDS-0[ ]
+        NDS-1[ ]
+        NDS-2[ ]
+
+%% B-OUT   - Breakout to another diagram
+        B-OUT-0[\"`**Case Creation Flow**`"/]
+        B-OUT-1[\"`**Update defendant listing status**`"/]
+        B-OUT-2[\"`**Application + Hearing link**`"/]
+        B-OUT-3[\"`**Update application status**`"/]                      
+        
+        B-OUT-4@{ img: "https://jumpshare.com/s/JlIcKDOyree9mm6SIcI5", label: "Case Creation Flow", pos: "c", h: 160, constraint: "on" }
+
+%% CLD   - API call to cloud
+        CLD-0["`**APIM Call**
+                Relay case to court store`"]
+
+%% DOC   - Email output
+        DOC-0["`**Send email of postal notifcation to applicant**`"]
+  end
+
+
+%% Diagram Mapping
+  INI-0-->CMD-0
+  INI-1-->CMD-1
+  CMD-0-->CMD-1
+  CMD-1-->EVT-0
+  EVT-0-->QUS-0
+  QUS-0-->|YES|QUS-1
+  QUS-0-->|NO|NDS-1
+  QUS-1-->|YES|NDS-0
+  NDS-0-->CLD-0
+  NDS-0-->B-OUT-4
+
+  NDS-0-->P-EVT-1
+  NDS-1-->CMD-2
+  NDS-1-->P-EVT-0
+  CMD-2-->EVT-1
+  EVT-1-->CMD-3
+  EVT-1-->CMD-4
+  EVT-1-->P-EVT-2
+  CMD-2-->QUS-2
+  QUS-2-->|YES|EVT-2
+  EVT-2-->DOC-0
+  CMD-4-->EVT-3
+  CMD-3-->QUS-3
+  CMD-3-->QUS-4
+  QUS-3-->|YES|EVT-4
+  QUS-4-->|application is a box hearing|EVT-5
+  QUS-4-->|application referred to new hearing|EVT-6
+  QUS-4-->|application referred to existing hearing|EVT-7  
+  EVT-5-->P-EVT-4
+  EVT-5-->CMD-6
+  EVT-6 & EVT-5--->B-OUT-1
+  EVT-5 & EVT-6 & NDS-2-->B-OUT-2
+  EVT-5 & EVT-6 & NDS-2-->B-OUT-3
+  EVT-6-->CMD-5
+  EVT-7-->QUS-5
+  QUS-5-->|YES|P-EVT-3
+  NDS-2-->P-EVT-3
+  QUS-5-->|NO|NDS-2
+
+%% Non-standard Shapes
+%% There is NOT a shape for breakout in Mermaid
+  CLD-0@{ shape: cloud}
+  NDS-0@{ shape: f-circ }
+  NDS-1@{ shape: f-circ } 
+  NDS-2@{ shape: f-circ } 
+  DOC-0@{ shape: doc }
+
+%% Assign Classes
+  class INI-0,INI-1,B-OUT-0,B-OUT-1,B-OUT-2,B-OUT-3 in-out
+  class P-EVT-0,P-EVT-1,P-EVT-2,P-EVT-3,P-EVT-4,CLD-0 external
+  class EVT-0,EVT-1,EVT-2,EVT-3,EVT-4,EVT-5,EVT-6,EVT-7 internal
+  class DOC-0 email
